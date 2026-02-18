@@ -11,7 +11,7 @@ from typing import Final
 ===============================================================================
 """
 
-RUBBERSOUL: Path = Path(__file__).resolve().parents[3]
+RUBBERSOUL_DIR: Path = Path(__file__).resolve().parents[3]
 DEFAULT_DIR: Path = Path(".")
 
 _OLLAMA_HOST: Final[str] = "127.0.0.1"

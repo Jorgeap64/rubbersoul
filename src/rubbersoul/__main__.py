@@ -14,7 +14,7 @@ from rubbersoul.utils.uitls import DEFAULT_DIR
 
 log = get_logger("app", console=False)
 
-TITLE: Final[str] = "Jumpin' Jack Flash" 
+TITLE: Final[str] = "Rubber Soul" 
 
 def _parse_args():
 	parser = ArgumentParser(description=f"Start the {TITLE}")
