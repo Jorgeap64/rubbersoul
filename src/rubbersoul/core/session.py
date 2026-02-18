@@ -25,31 +25,8 @@ _TEMPERATURE: Final[float] = 0.1
 _TOP_K: Final[int] = 20
 _TOP_P: Final[float] = 0.5
 _REPEAT_PENALTY: Final[float] = 1.3
-_NUM_PREDICT: Final[int] = 150
-_SYSTEM_PROMPT: str = "You are a commit message generator. You output ONLY the commit message. No reasoning. No explanation. No alternatives. Just the message."
-_DIFF_PROMPT: str = """Generate a git commit message for this diff.
-
-RULES:
-- Output ONLY the commit message, nothing else
-- Format: <type>(<scope>): <summary>
-- Types: feat, fix, docs, refactor, chore, ci, build, test, style, perf
-- Summary: imperative, lowercase, under 72 chars
-- Optional body: blank line, then bullet points
-
-EXAMPLE OUTPUT:
-feat(cli): add async session manager
-
-- introduce AsyncClient for streaming responses
-- add model validation on startup
-
-FORBIDDEN:
-- Do not explain your reasoning
-- Do not list alternatives  
-- Do not say "here is the commit message"
-- Do not use markdown code blocks
-
-DIFF:
-{diff}"""
+_NUM_PREDICT: Final[int] = 300
+_SYSTEM_PROMPT: Final[str] = "You are a commit message generator. You output ONLY the commit message. No reasoning. No explanation. No alternatives. Just the message."
 
 class Roles(str, Enum):
     SYSTEM = "system"
@@ -86,41 +63,40 @@ class Session:
             raise ValueError(f"Model '{model}' not found. Available models: {available}...")
 
     def _git_diff_prompt(self) -> str:
-        git_diff = get_git_diff() 
-        if git_diff:
-            log.info(f"The files: \n{git_diff}\n...")
-        return _DIFF_PROMPT.format(diff=git_diff)
+        with open("SKILL.md") as f:
+            skill = f.read()
+        diff = get_git_diff()
+        prompt = f"""{skill}
+        Now generate a commit message for this diff. Output ONLY the message:
+        {diff}"""
+        log.info(f"Prompt: {prompt}...")
+        return prompt
 
-    async def ask_stream(self) -> AsyncGenerator[str, None]:
+    async def ask(self) -> str:
         prompt = self._git_diff_prompt()
-        message = [
+        messages = [
                 { "role": Roles.SYSTEM, "content": _SYSTEM_PROMPT },
                 { "role": Roles.USER, "content": prompt }
-                ]		
+                ]
 
-        final_content = ""
-        stream = await self.client.chat(
+        response = await self.client.chat(
                 model=self._config.model,
-                messages=message,
-                stream=True,
+                messages=messages,
+                stream=False,
                 options={
                     "temperature": _TEMPERATURE,
                     "top_p": _TOP_P,
                     "top_k": _TOP_K,
                     "repeat_penalty": _REPEAT_PENALTY,
                     "num_predict": _NUM_PREDICT,
-                    "think": False
                     },
                 keep_alive=_KEEP_ALIVE
                 )
-
-        async for partial in stream:
-            message = partial["message"]
-            chunk = message.get("content") or message.get("thinking")
-            final_content += chunk
-            yield chunk
+        msg = response["message"]
+        result = (msg.get("content") or msg.get("thinking") or "").strip()
         log.info(f"Response complete...")
-
+        return result
+   
     async def close_session(self) -> None:
         await self.client.chat(
                 model=self._config.model,
