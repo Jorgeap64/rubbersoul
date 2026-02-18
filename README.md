@@ -59,7 +59,13 @@ conda env update -f env.yml --prune
 
 ## How to use
 
-First:
+Start by defining the model with:
+
+```sh
+rubbersoul -m [model_name]
+```
+
+Now let's start working, first:
 
 ```sh
 git add [command]
