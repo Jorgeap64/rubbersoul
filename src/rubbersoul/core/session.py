@@ -6,6 +6,7 @@ from typing import AsyncGenerator, Final
 
 from ollama import list as models_list, AsyncClient
 
+from rubbersoul.core.git_ops import get_git_diff
 from rubbersoul.utils.utils import is_ollama_running
 from rubbersoul.config.config import Config
 
@@ -17,14 +18,27 @@ from rubbersoul.config.config import Config
 ===============================================================================
 """
 
-_MAX_HISTORY: Final[int] = 20
+log = logging.getLogger(__name__)
+
 _KEEP_ALIVE: Final[str] = "5m"
 _TEMPERATURE: Final[float] = 0.2
 _TOP_P: Final[int] = 40
 _TOP_K: Final[float] = 0.9
 _REPEAT_PENALTY: Final[float] = 1.3
+_DIFF_PROMPT: str = """
+You are a senior software engineer.
 
-log = logging.getLogger(__name__)
+Write a professional git commit message using Conventional Commits.
+
+Rules:
+- First line: <type>: <short summary>
+- Use imperative mood
+- Keep summary under 72 characters
+- If helpful, add bullet points
+
+Diff:
+{diff}
+"""
 
 class Roles(str, Enum):
     SYSTEM = "system"
@@ -60,20 +74,22 @@ class Session:
             log.error(f"Model '{model}' not found. Available models: {available}...")
             raise ValueError(f"Model '{model}' not found. Available models: {available}...")
 
-    async def ask_stream(self, user_input: str) -> AsyncGenerator[str, None]:
-        git_diff = ... 
+    def _git_diff_prompt(self) -> str:
+        git_diff = get_git_diff() 
         if git_diff:
-            log.info(f"User mentioned files: \n{git_diff}\n...")
+            log.info(f"The files: \n{git_diff}\n...")
+        return _DIFF_PROMPT.format(diff=git_diff)
 
-        messages = [
-                {"role": Roles.SYSTEM, "content": ... }
-                ]		
-        user_message = Message(Roles.USER, user_input)
+    async def ask_stream(self) -> AsyncGenerator[str, None]:
+        prompt = self._git_diff_prompt()
+        message = {
+            "role": Roles.SYSTEM, "content": prompt 
+        }		
 
         final_content = ""
         stream = await self.client.chat(
                 model=self._config.model,
-                messages=messages,
+                messages=message,
                 stream=True,
                 options={
                     "temperature": _TEMPERATURE,
@@ -88,7 +104,6 @@ class Session:
             chunk = partial["message"]["content"]
             final_content += chunk
             yield chunk
-
         log.info(f"Response complete...")
 
     async def close_session(self) -> None:
