@@ -1,0 +1,17 @@
+[project]
+name = "rubbersoul"
+version = "0.1.0"
+description = "Rubber Soul - Ollama Automation Commit Message Tool"
+requires-python = ">=3.11"
+dependencies = [
+    "ollama",
+    "pathspec",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project.scripts]
+rubbersoul = "rubbersoul.__main__:main"
+

@@ -4,7 +4,7 @@ import logging
 from logging import Logger
 from pathlib import Path
 
-from rubbersoul.utils.utils import RUBBERSOUL
+from rubbersoul.utils.utils import RUBBERSOUL_DIR
 
 """
 ===============================================================================
@@ -14,7 +14,7 @@ from rubbersoul.utils.utils import RUBBERSOUL
 ===============================================================================
 """
 
-_LOG_DIR: Path = RUBBERSOUL / "logs"
+_LOG_DIR: Path = RUBBERSOUL_DIR / "logs"
 
 def get_logger(name: str, *, log_dir: Path = _LOG_DIR, console: bool = False) -> Logger:
 	os.makedirs(log_dir, exist_ok=True)

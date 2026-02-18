@@ -21,24 +21,35 @@ from rubbersoul.config.config import Config
 log = logging.getLogger(__name__)
 
 _KEEP_ALIVE: Final[str] = "5m"
-_TEMPERATURE: Final[float] = 0.2
-_TOP_P: Final[int] = 40
-_TOP_K: Final[float] = 0.9
+_TEMPERATURE: Final[float] = 0.1
+_TOP_K: Final[int] = 20
+_TOP_P: Final[float] = 0.5
 _REPEAT_PENALTY: Final[float] = 1.3
-_DIFF_PROMPT: str = """
-You are a senior software engineer.
+_NUM_PREDICT: Final[int] = 150
+_SYSTEM_PROMPT: str = "You are a commit message generator. You output ONLY the commit message. No reasoning. No explanation. No alternatives. Just the message."
+_DIFF_PROMPT: str = """Generate a git commit message for this diff.
 
-Write a professional git commit message using Conventional Commits.
+RULES:
+- Output ONLY the commit message, nothing else
+- Format: <type>(<scope>): <summary>
+- Types: feat, fix, docs, refactor, chore, ci, build, test, style, perf
+- Summary: imperative, lowercase, under 72 chars
+- Optional body: blank line, then bullet points
 
-Rules:
-- First line: <type>: <short summary>
-- Use imperative mood
-- Keep summary under 72 characters
-- If helpful, add bullet points
+EXAMPLE OUTPUT:
+feat(cli): add async session manager
 
-Diff:
-{diff}
-"""
+- introduce AsyncClient for streaming responses
+- add model validation on startup
+
+FORBIDDEN:
+- Do not explain your reasoning
+- Do not list alternatives  
+- Do not say "here is the commit message"
+- Do not use markdown code blocks
+
+DIFF:
+{diff}"""
 
 class Roles(str, Enum):
     SYSTEM = "system"
@@ -82,9 +93,10 @@ class Session:
 
     async def ask_stream(self) -> AsyncGenerator[str, None]:
         prompt = self._git_diff_prompt()
-        message = {
-            "role": Roles.SYSTEM, "content": prompt 
-        }		
+        message = [
+                { "role": Roles.SYSTEM, "content": _SYSTEM_PROMPT },
+                { "role": Roles.USER, "content": prompt }
+                ]		
 
         final_content = ""
         stream = await self.client.chat(
@@ -95,13 +107,16 @@ class Session:
                     "temperature": _TEMPERATURE,
                     "top_p": _TOP_P,
                     "top_k": _TOP_K,
-                    "repeat_penalty": _REPEAT_PENALTY
+                    "repeat_penalty": _REPEAT_PENALTY,
+                    "num_predict": _NUM_PREDICT,
+                    "think": False
                     },
                 keep_alive=_KEEP_ALIVE
                 )
 
         async for partial in stream:
-            chunk = partial["message"]["content"]
+            message = partial["message"]
+            chunk = message.get("content") or message.get("thinking")
             final_content += chunk
             yield chunk
         log.info(f"Response complete...")
