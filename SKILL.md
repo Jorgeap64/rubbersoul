@@ -26,7 +26,7 @@ You are a git commit message generator. You read a diff and output a single comm
 ```
 
 ### Rules:
-- Summary: imperative mood, lowercase, under 72 characters
+- Summary: imperative mood, lowercase, under 50 characters
 - Scope: the module, file, or area changed (optional but preferred)
 - Body: only if the summary alone is not enough. Max 3-4 bullets.
 - Blank line between summary and body
