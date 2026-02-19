@@ -7,7 +7,7 @@ from typing import AsyncGenerator, Final
 from ollama import list as models_list, AsyncClient
 
 from rubbersoul.core.git_ops import get_git_diff
-from rubbersoul.utils.utils import is_ollama_running
+from rubbersoul.utils.utils import is_ollama_running, SKILLS_DIR
 from rubbersoul.config.config import Config
 
 """
@@ -63,7 +63,7 @@ class Session:
             raise ValueError(f"Model '{model}' not found. Available models: {available}...")
 
     def _git_diff_prompt(self) -> str:
-        with open("SKILL.md") as f:
+        with open(SKILLS_DIR) as f:
             skill = f.read()
         diff = get_git_diff()
         prompt = f"""{skill}

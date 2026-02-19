@@ -13,6 +13,7 @@ from typing import Final
 
 RUBBERSOUL_DIR: Path = Path(__file__).resolve().parents[3]
 DEFAULT_DIR: Path = Path(".")
+SKILLS_DIR: Path = RUBBERSOUL_DIR / "SKILLS.md"
 
 _OLLAMA_HOST: Final[str] = "127.0.0.1"
 _OLLAMA_PORT: Final[int] = 11434
