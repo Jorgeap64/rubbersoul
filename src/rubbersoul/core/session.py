@@ -21,12 +21,21 @@ from rubbersoul.config.config import Config
 log = logging.getLogger(__name__)
 
 _KEEP_ALIVE: Final[str] = "5m"
-_TEMPERATURE: Final[float] = 0.1
-_TOP_K: Final[int] = 20
-_TOP_P: Final[float] = 0.5
-_REPEAT_PENALTY: Final[float] = 1.3
+_TEMPERATURE: Final[float] = 0.0
+_TOP_K: Final[int] = 10
+_TOP_P: Final[float] = 0.2
+_REPEAT_PENALTY: Final[float] = 1.1
 _NUM_PREDICT: Final[int] = 300
-_SYSTEM_PROMPT: Final[str] = "You are a commit message generator. You output ONLY the commit message. No reasoning. No explanation. No alternatives. Just the message."
+_SEED: Final[int] = 42
+_SYSTEM_PROMPT: Final[str] = (
+    "You are a precise execution engine. "
+    "Follow instructions exactly as given. "
+    "Do not add, interpret, or embellish anything. "
+    "Do not explain your reasoning. "
+    "Do not offer alternatives or suggestions. "
+    "Output only what is explicitly requested. "
+    "If something is unclear, do the most literal interpretation possible."
+)
 
 class Roles(str, Enum):
     SYSTEM = "system"
@@ -89,6 +98,7 @@ class Session:
                     "top_k": _TOP_K,
                     "repeat_penalty": _REPEAT_PENALTY,
                     "num_predict": _NUM_PREDICT,
+                    "seed": _SEED,
                     },
                 keep_alive=_KEEP_ALIVE
                 )

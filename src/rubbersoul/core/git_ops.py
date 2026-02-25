@@ -9,10 +9,10 @@ import subprocess
 """
 
 def get_git_diff() -> str:
-    diff = subprocess.check_output(
-            ["git", "diff", "--cached"]
-            ).decode("utf-8")
-    
-    if not diff.strip():
+    diff = subprocess.check_output(["git", "diff"]).decode("utf-8")
+    cached = subprocess.check_output(["git", "diff", "--cached"]).decode("utf-8")
+
+    result = (diff + cached).strip()
+    if not result:
         raise SystemExit("No staged changes.")
-    return diff
+    return result

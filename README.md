@@ -65,11 +65,5 @@ Start by defining the model with:
 rubbersoul -m [model_name]
 ```
 
-Now let's start working, first:
-
-```sh
-git add [command]
-```
-
 Them run the program (can take a while, not much...) and it will return the commit message.
 Them grep it, pip it, use xclip on it or do whatever the f you want with it.
