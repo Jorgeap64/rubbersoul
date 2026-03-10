@@ -4,7 +4,9 @@ from enum import Enum
 from dataclasses import dataclass
 from typing import AsyncGenerator, Final
 
-from ollama import list as models_list, AsyncClient
+from langchain_ollama import ChatOllama
+from langchain_core.messages import SystemMessage, HumanMessage
+from ollama import list as models_list 
 
 from rubbersoul.core.git_ops import get_git_diff
 from rubbersoul.utils.utils import is_ollama_running, SKILLS_DIR
@@ -30,21 +32,13 @@ _SEED: Final[int] = 42
 _SYSTEM_PROMPT: Final[str] = (
     "You are a precise execution engine. "
     "Follow instructions exactly as given. "
-    "Do not add, interpret, or embellish anything. "
-    "Do not explain your reasoning. "
-    "Do not offer alternatives or suggestions. "
     "Output only what is explicitly requested. "
-    "If something is unclear, do the most literal interpretation possible."
+    "Do not explain your reasoning or offer alternatives."
 )
-
-class Roles(str, Enum):
-    SYSTEM = "system"
-    USER = "user"
-    ASSISTANT = "assistant"
 
 @dataclass(slots=True)
 class Session:
-    client: AsyncClient
+    _llm: ChatOllama
     _config: Config
 
     def __init__(self, _config: Config):
@@ -54,7 +48,16 @@ class Session:
 
         self._config = _config
         self._validate_model(self._config.model)
-        self.client = AsyncClient()
+        self._llm = ChatOllama(
+            model=self._config.model,
+            temperature=_TEMPERATURE,        # determinism
+            top_k=_TOP_K,
+            top_p=_TOP_P,
+            repeat_penalty=_REPEAT_PENALTY,
+            num_predict=_NUM_PREDICT,
+            seed=_SEED,
+            keep_alive=_KEEP_ALIVE,
+        )
 
         log.info(f"Session started for project: {self._config.dir_name}...")
 
@@ -84,35 +87,18 @@ class Session:
     async def ask(self) -> str:
         prompt = self._git_diff_prompt()
         messages = [
-                { "role": Roles.SYSTEM, "content": _SYSTEM_PROMPT },
-                { "role": Roles.USER, "content": prompt }
-                ]
-
-        response = await self.client.chat(
-                model=self._config.model,
-                messages=messages,
-                stream=False,
-                options={
-                    "temperature": _TEMPERATURE,
-                    "top_p": _TOP_P,
-                    "top_k": _TOP_K,
-                    "repeat_penalty": _REPEAT_PENALTY,
-                    "num_predict": _NUM_PREDICT,
-                    "seed": _SEED,
-                    },
-                keep_alive=_KEEP_ALIVE
-                )
-        msg = response["message"]
-        result = (msg.get("content") or msg.get("thinking") or "").strip()
+            SystemMessage(content=_SYSTEM_PROMPT),
+            HumanMessage(content=prompt)
+        ]
+        response = await self._llm.ainvoke(messages)
+        result = (response.content or "")
         log.info(f"Response complete...")
         return result
    
     async def close_session(self) -> None:
-        await self.client.chat(
-                model=self._config.model,
-                messages=[],
-                stream=False,
-                keep_alive="0s"
-                )
-        del self.client
+        self._llm.keep_alive = "0s"
+        await self._llm.ainvoke([
+            HumanMessage(content="")
+        ])
+        del self._llm
         log.warning("Session closed...")

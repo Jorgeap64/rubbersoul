@@ -1,6 +1,4 @@
 import sys
-import itertools
-import asyncio
 
 from dataclasses import dataclass
 

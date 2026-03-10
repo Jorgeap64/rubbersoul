@@ -2,10 +2,13 @@
 name = "rubbersoul"
 version = "0.1.0"
 description = "Rubber Soul - Ollama Automation Commit Message Tool"
-requires-python = ">=3.11"
+requires-python = "==3.12"
 dependencies = [
     "ollama",
     "pathspec",
+    "langchain>=0.3",
+    "langchain-ollama>=0.2",
+    "langchain-core>=0.3"
 ]
 
 [build-system]
