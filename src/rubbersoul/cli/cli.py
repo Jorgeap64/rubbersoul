@@ -22,13 +22,13 @@ class CLI:
         self._config = _config
         self._session = Session(self._config)
 
-    async def start(self):
+    def start(self):
         try:
-            result = await self._session.ask()
+            result = self._session.ask()
             print(result)
         except Exception as e:
             print(f"[error] {e}", file=sys.stderr)
             sys.exit(1)
         finally:
-            await self._session.close_session()
+            self._session.close_session()
 

@@ -6,9 +6,9 @@ requires-python = "==3.12"
 dependencies = [
     "ollama",
     "pathspec",
-    "langchain>=0.3",
-    "langchain-ollama>=0.2",
-    "langchain-core>=0.3"
+    "langchain-core>=0.3",
+	"langchain-text-splitters",
+	"tiktoken"
 ]
 
 [build-system]

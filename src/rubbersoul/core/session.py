@@ -1,16 +1,15 @@
 import logging
 
-from enum import Enum
 from dataclasses import dataclass
-from typing import AsyncGenerator, Final
+from typing import Final
 
 from langchain_ollama import ChatOllama
-from langchain_core.messages import SystemMessage, HumanMessage
+from langchain_core.messages import HumanMessage
 from ollama import list as models_list 
 
-from rubbersoul.core.git_ops import get_git_diff
-from rubbersoul.utils.utils import is_ollama_running, SKILLS_DIR
+from rubbersoul.utils.utils import is_ollama_running
 from rubbersoul.config.config import Config
+from rubbersoul.core.prompts import get_commit 
 
 """
 ===============================================================================
@@ -29,12 +28,6 @@ _TOP_P: Final[float] = 0.2
 _REPEAT_PENALTY: Final[float] = 1.1
 _NUM_PREDICT: Final[int] = 300
 _SEED: Final[int] = 42
-_SYSTEM_PROMPT: Final[str] = (
-    "You are a precise execution engine. "
-    "Follow instructions exactly as given. "
-    "Output only what is explicitly requested. "
-    "Do not explain your reasoning or offer alternatives."
-)
 
 @dataclass(slots=True)
 class Session:
@@ -74,30 +67,16 @@ class Session:
             log.error(f"Model '{model}' not found. Available models: {available}...")
             raise ValueError(f"Model '{model}' not found. Available models: {available}...")
 
-    def _git_diff_prompt(self) -> str:
-        with open(SKILLS_DIR) as f:
-            skill = f.read()
-        diff = get_git_diff()
-        prompt = f"""{skill}
-        Now generate a commit message for this diff. Output ONLY the message:
-        {diff}"""
-        log.info(f"Prompt: {prompt}...")
-        return prompt
 
-    async def ask(self) -> str:
-        prompt = self._git_diff_prompt()
-        messages = [
-            SystemMessage(content=_SYSTEM_PROMPT),
-            HumanMessage(content=prompt)
-        ]
-        response = await self._llm.ainvoke(messages)
-        result = (response.content or "")
+    def ask(self) -> str:
+        response = get_commit(self._llm)
+        result = (response or "")
         log.info(f"Response complete...")
         return result
    
-    async def close_session(self) -> None:
+    def close_session(self) -> None:
         self._llm.keep_alive = "0s"
-        await self._llm.ainvoke([
+        self._llm.invoke([
             HumanMessage(content="")
         ])
         del self._llm

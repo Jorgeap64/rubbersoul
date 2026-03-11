@@ -25,3 +25,4 @@ def is_ollama_running(*, host: str=_OLLAMA_HOST, port: int=_OLLAMA_PORT) -> bool
 			return True
 	except OSError:
 		return False
+

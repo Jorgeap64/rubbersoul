@@ -1,5 +1,3 @@
-import asyncio
-
 from argparse import ArgumentParser, Namespace
 from typing import Final
 
@@ -59,20 +57,20 @@ def _parse_args():
 
     return parser.parse_args()
 
-async def setup():
+def setup():
     log.info("Starting application...")
     args = _parse_args() 
     config = _get_config(args)
 
     cli = CLI(config)
     try:
-        await cli.start()
+        cli.start()
     except Exception as e:
         log.error(f"Died: {e}...")
 
 def main():
     try:
-        asyncio.run(setup())
+        setup()
     except KeyboardInterrupt:
         print("\n[Interrupted]")
 
