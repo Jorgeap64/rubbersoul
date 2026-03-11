@@ -8,7 +8,8 @@ dependencies = [
     "pathspec",
     "langchain-core>=0.3",
 	"langchain-text-splitters",
-	"tiktoken"
+	"tiktoken",
+	"pydantic"
 ]
 
 [build-system]

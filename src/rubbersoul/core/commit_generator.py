@@ -5,18 +5,19 @@ import tiktoken
 
 from typing import Final
 
-from rubbersoul.utils.utils import SKILLS_DIR 
-from rubbersoul.core.git_ops import get_git_diff
-
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser, JsonOutputParser
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
 
+from rubbersoul.utils.utils import SKILLS_DIR 
+from rubbersoul.core.git_ops import get_git_diff
+from rubbersoul.core.commit_schema import CommitMessage
+
 """
 ===============================================================================
 
-    Prompts
+    Generator 
 
 ===============================================================================
 """
@@ -39,7 +40,7 @@ reduce_prompt = ChatPromptTemplate.from_template(
 )
 
 final_prompt = ChatPromptTemplate.from_template(
-    "{skill}\nNow generate a commit message for this diff. Output ONLY the message:\n{diff}"
+    "{skill}\nNow generate a structured conventional commit message for this diff:\n{diff}"
 )
 
 def compress_diff(diff: str) -> str:
@@ -106,10 +107,13 @@ def get_commit(llm) -> str:
         skill = f.read()
     skill_tokens = count_tokens(skill, llm.model)
     diff = process_diff(llm, raw_diff, skill_tokens)
-    chain = final_prompt | llm | Str
-    result = chain.invoke({
+
+    struct_llm = llm.with_structured_output(CommitMessage)
+    chain = final_prompt | struct_llm
+    response = chain.invoke({
         "diff": diff,
         "skill": skill
     })
+    result = response.format()
     log.info(f"Result: {result}...")
     return result
