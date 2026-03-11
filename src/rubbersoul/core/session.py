@@ -9,7 +9,7 @@ from ollama import list as models_list
 
 from rubbersoul.utils.utils import is_ollama_running
 from rubbersoul.config.config import Config
-from rubbersoul.core.prompts import get_commit 
+from rubbersoul.core.commit_generator import get_commit 
 
 """
 ===============================================================================
