@@ -1,5 +1,4 @@
 import sys
-
 from dataclasses import dataclass
 
 from rubbersoul.config.config import Config
@@ -12,6 +11,7 @@ from rubbersoul.core.session import Session
 
 ===============================================================================
 """
+
 
 @dataclass(slots=True)
 class CLI:
@@ -31,4 +31,3 @@ class CLI:
             sys.exit(1)
         finally:
             self._session.close_session()
-

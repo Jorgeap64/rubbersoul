@@ -9,14 +9,15 @@ from rubbersoul.utils.utils import DEFAULT_DIR
 """
 ===============================================================================
 
-    Main 
+    Main
 
 ===============================================================================
 """
 
 log = get_logger("app", console=False)
 
-TITLE: Final[str] = "Rubber Soul" 
+TITLE: Final[str] = "Rubber Soul"
+
 
 def _get_config(args: Namespace) -> Config:
     config = Config.load_config()
@@ -34,32 +35,34 @@ def _get_config(args: Namespace) -> Config:
     config.save_config()
     return config
 
+
 def _parse_args():
     parser = ArgumentParser(description=f"Start the {TITLE}")
 
     parser.add_argument(
-            "-p", "--path",
-            nargs="?",
-            default=DEFAULT_DIR,
-            help="Path to the project (default: current directory)"
-            )
+        "-p",
+        "--path",
+        nargs="?",
+        default=DEFAULT_DIR,
+        help="Path to the project (default: current directory)",
+    )
 
     parser.add_argument(
-            "-m", "--model",
-            help="Model to use (overrides saved default and updates config)"
-            )
+        "-m",
+        "--model",
+        help="Model to use (overrides saved default and updates config)",
+    )
 
     parser.add_argument(
-            "-r", "--reset",
-            action="store_true",
-            help="Reset configs that where saved"
-            )
+        "-r", "--reset", action="store_true", help="Reset configs that where saved"
+    )
 
     return parser.parse_args()
 
+
 def setup():
     log.info("Starting application...")
-    args = _parse_args() 
+    args = _parse_args()
     config = _get_config(args)
 
     cli = CLI(config)
@@ -68,11 +71,13 @@ def setup():
     except Exception as e:
         log.error(f"Died: {e}...")
 
+
 def main():
     try:
         setup()
     except KeyboardInterrupt:
         print("\n[Interrupted]")
+
 
 if __name__ == "__main__":
     main()

@@ -1,5 +1,4 @@
 import socket
-
 from pathlib import Path
 from typing import Final
 
@@ -17,12 +16,12 @@ SKILLS_DIR: Path = RUBBERSOUL_DIR / "SKILLS.md"
 
 _OLLAMA_HOST: Final[str] = "127.0.0.1"
 _OLLAMA_PORT: Final[int] = 11434
-_TIMEOUT: Final[int] = 1 # seconds
+_TIMEOUT: Final[int] = 1  # seconds
 
-def is_ollama_running(*, host: str=_OLLAMA_HOST, port: int=_OLLAMA_PORT) -> bool:
-	try:
-		with socket.create_connection((host, port), timeout=_TIMEOUT):
-			return True
-	except OSError:
-		return False
 
+def is_ollama_running(*, host: str = _OLLAMA_HOST, port: int = _OLLAMA_PORT) -> bool:
+    try:
+        with socket.create_connection((host, port), timeout=_TIMEOUT):
+            return True
+    except OSError:
+        return False

@@ -9,7 +9,7 @@ dependencies = [
     "langchain-core>=0.3",
 	"langchain-text-splitters",
 	"tiktoken",
-	"pydantic"
+	"pydantic",
 ]
 
 [build-system]
@@ -19,3 +19,9 @@ build-backend = "setuptools.build_meta"
 [project.scripts]
 rubbersoul = "rubbersoul.__main__:main"
 
+[tool.black]
+line-length = 88
+target-version = ['py39']
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B", "I"]  # common error/warning codes

@@ -1,5 +1,4 @@
 import logging
-
 from dataclasses import dataclass
 from typing import Final
 
@@ -7,9 +6,9 @@ from langchain_core.messages import HumanMessage
 from langchain_ollama import ChatOllama
 from ollama import list as models_list
 
-from rubbersoul.utils.utils import is_ollama_running
 from rubbersoul.config.config import Config
-from rubbersoul.core.commit_generator import get_commit 
+from rubbersoul.core.commit_generator import get_commit
+from rubbersoul.utils.utils import is_ollama_running
 
 """
 ===============================================================================
@@ -30,6 +29,7 @@ _NUM_PREDICT: Final[int] = 300
 _NUM_CTX: Final[int] = 16384
 _SEED: Final[int] = 42
 
+
 @dataclass(slots=True)
 class Session:
     _llm: ChatOllama
@@ -44,7 +44,7 @@ class Session:
         self._validate_model(self._config.model)
         self._llm = ChatOllama(
             model=self._config.model,
-            temperature=_TEMPERATURE,        # determinism
+            temperature=_TEMPERATURE,  # determinism
             top_k=_TOP_K,
             top_p=_TOP_P,
             repeat_penalty=_REPEAT_PENALTY,
@@ -67,21 +67,20 @@ class Session:
         available = Session.get_models()
         if model not in available:
             log.error(f"Model '{model}' not found. Available models: {available}...")
-            raise ValueError(f"Model '{model}' not found. Available models: {available}...")
-
+            raise ValueError(
+                f"Model '{model}' not found. Available models: {available}..."
+            )
 
     def ask(self) -> str:
         response = get_commit(self._llm)
-        result = (response or "")
-        log.info(f"Response complete...")
+        result = response or ""
+        log.info("Response complete...")
         return result
 
     def close_session(self) -> None:
         try:
-            self._llm.keep_alive = "0m" 
-            self._llm.invoke([
-                HumanMessage(content="")
-            ])
+            self._llm.keep_alive = "0m"
+            self._llm.invoke([HumanMessage(content="")])
             log.warning("Model unloaded from Ollama...")
         except Exception as e:
             log.error(f"Failed to unload model: {e}...")
