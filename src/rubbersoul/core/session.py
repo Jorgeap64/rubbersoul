@@ -27,6 +27,7 @@ _TOP_K: Final[int] = 10
 _TOP_P: Final[float] = 0.2
 _REPEAT_PENALTY: Final[float] = 1.1
 _NUM_PREDICT: Final[int] = 300
+_NUM_CTX: Final[int] = 16384
 _SEED: Final[int] = 42
 
 @dataclass(slots=True)
@@ -48,6 +49,7 @@ class Session:
             top_p=_TOP_P,
             repeat_penalty=_REPEAT_PENALTY,
             num_predict=_NUM_PREDICT,
+            num_ctx=_NUM_CTX,
             seed=_SEED,
             keep_alive=_KEEP_ALIVE,
         )

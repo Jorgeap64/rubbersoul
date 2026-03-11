@@ -24,7 +24,7 @@ from rubbersoul.core.commit_schema import CommitMessage
 
 log = logging.getLogger(__name__)
 
-_MAX_TOKENS: Final[int] = 3000
+_MAX_TOKENS: Final[int] = 12000
 _MAX_CHUNK_SIZE: Final[int] = 1500
 _CHUNK_OVERLAP: Final[int] = 100
 
