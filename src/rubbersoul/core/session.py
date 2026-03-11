@@ -3,9 +3,9 @@ import logging
 from dataclasses import dataclass
 from typing import Final
 
-from langchain_ollama import ChatOllama
 from langchain_core.messages import HumanMessage
-from ollama import list as models_list 
+from langchain_ollama import ChatOllama
+from ollama import list as models_list
 
 from rubbersoul.utils.utils import is_ollama_running
 from rubbersoul.config.config import Config
@@ -73,11 +73,16 @@ class Session:
         result = (response or "")
         log.info(f"Response complete...")
         return result
-   
+
     def close_session(self) -> None:
-        self._llm.keep_alive = "0s"
-        self._llm.invoke([
-            HumanMessage(content="")
-        ])
-        del self._llm
-        log.warning("Session closed...")
+        try:
+            self._llm.keep_alive = "0m" 
+            self._llm.invoke([
+                HumanMessage(content="")
+            ])
+            log.warning("Model unloaded from Ollama...")
+        except Exception as e:
+            log.error(f"Failed to unload model: {e}...")
+        finally:
+            del self._llm
+            log.warning("Session closed...")
