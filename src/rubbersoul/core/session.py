@@ -25,7 +25,7 @@ _TEMPERATURE: Final[float] = 0.0
 _TOP_K: Final[int] = 10
 _TOP_P: Final[float] = 0.2
 _REPEAT_PENALTY: Final[float] = 1.1
-_NUM_PREDICT: Final[int] = 300
+_NUM_PREDICT: Final[int] = -1
 _NUM_CTX: Final[int] = 16384
 _SEED: Final[int] = 42
 

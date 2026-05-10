@@ -1,6 +1,5 @@
 import logging
 import re
-from typing import Final
 
 import tiktoken
 from langchain_core.documents import Document
@@ -10,7 +9,11 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from rubbersoul.core.commit_schema import CommitMessage
 from rubbersoul.core.git_ops import get_git_diff
-from rubbersoul.utils.utils import SKILLS_DIR
+from rubbersoul.utils.utils import (
+    SKILLS_DIR,
+    get_available_ram_gb,
+    get_available_vram_gb,
+)
 
 """
 ===============================================================================
@@ -22,9 +25,38 @@ from rubbersoul.utils.utils import SKILLS_DIR
 
 log = logging.getLogger(__name__)
 
-_MAX_TOKENS: Final[int] = 12000
-_MAX_CHUNK_SIZE: Final[int] = 1500
-_CHUNK_OVERLAP: Final[int] = 100
+
+def _resolve_macros() -> tuple[int, int, int]:
+    ram_gb = get_available_ram_gb()
+    vram_gb = get_available_vram_gb()
+    effective_gb = ram_gb + vram_gb
+
+    log.info(
+        f"Hardware: {ram_gb:.1f} GB RAM free, {vram_gb:.1f} GB VRAM free "
+        f"→ effective {effective_gb:.1f} GB"
+    )
+
+    if effective_gb >= 32:
+        tier = "large"
+        params = (24_000, 2_500, 200)
+    elif effective_gb >= 16:
+        tier = "medium"
+        params = (16_000, 2_000, 150)
+    elif effective_gb >= 8:
+        tier = "default"
+        params = (12_000, 1_500, 100)
+    else:
+        tier = "small"
+        params = (6_000, 1_000, 50)
+
+    log.info(
+        f"Macro tier: {tier} → MAX_TOKENS={params[0]}, "
+        f"MAX_CHUNK_SIZE={params[1]}, CHUNK_OVERLAP={params[2]}"
+    )
+    return params
+
+
+_MAX_TOKENS, _MAX_CHUNK_SIZE, _CHUNK_OVERLAP = _resolve_macros()
 
 Str = StrOutputParser()
 Json = JsonOutputParser()

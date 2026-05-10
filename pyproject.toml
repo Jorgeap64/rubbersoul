@@ -7,9 +7,13 @@ dependencies = [
     "ollama",
     "pathspec",
     "langchain-core>=0.3",
+	"langchain-ollama",
 	"langchain-text-splitters",
 	"tiktoken",
 	"pydantic",
+    "psutil",
+    "nvidia-ml-py",
+    "pyrsmi", 
 ]
 
 [build-system]
