@@ -3,8 +3,6 @@ import os
 from logging import Logger
 from pathlib import Path
 
-from rubbersoul.utils.utils import RUBBERSOUL_DIR
-
 """
 ===============================================================================
 
@@ -13,7 +11,11 @@ from rubbersoul.utils.utils import RUBBERSOUL_DIR
 ===============================================================================
 """
 
-_LOG_DIR: Path = RUBBERSOUL_DIR / "logs"
+
+BASE_STATE_DIR = Path(
+    os.getenv("XDG_STATE_HOME", Path.home() / ".local" / "state")
+)
+_LOG_DIR = BASE_STATE_DIR / "rubbersoul" / "logs"
 
 
 def get_logger(name: str, *, log_dir: Path = _LOG_DIR, console: bool = False) -> Logger:

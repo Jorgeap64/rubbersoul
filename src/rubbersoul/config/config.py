@@ -3,7 +3,7 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 
-from rubbersoul.utils.utils import RUBBERSOUL_DIR
+from rubbersoul.utils.utils import APP_DIR
 
 """
 ===============================================================================
@@ -14,9 +14,7 @@ from rubbersoul.utils.utils import RUBBERSOUL_DIR
 """
 
 DEFAULT_DIR: Path = Path(".")
-
-_ENV_DIR: Path = RUBBERSOUL_DIR / ".env"
-_ENV_JSON: Path = _ENV_DIR / "env.json"
+_ENV_JSON: Path = APP_DIR / "env.json"
 
 
 @dataclass(slots=True)
@@ -40,7 +38,7 @@ class Config:
             data = json.load(f)
             return Config(**data)
 
-    def save_config(self, *, dir: Path = _ENV_DIR, json_: Path = _ENV_JSON) -> None:
+    def save_config(self, *, dir: Path = APP_DIR, json_: Path = _ENV_JSON) -> None:
         os.makedirs(dir, exist_ok=True)
         with open(json_, "w") as f:
             json.dump({"model": self.model}, f, indent=2)

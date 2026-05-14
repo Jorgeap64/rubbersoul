@@ -1,7 +1,9 @@
 import logging
+import os
 import socket
 from pathlib import Path
 from typing import Final
+from importlib.resources import files
 
 import psutil
 
@@ -13,9 +15,9 @@ import psutil
 ===============================================================================
 """
 
-RUBBERSOUL_DIR: Path = Path(__file__).resolve().parents[3]
-DEFAULT_DIR: Path = Path(".")
-SKILLS_DIR: Path = RUBBERSOUL_DIR / "SKILLS.md"
+APP_DIR = Path(os.getenv("XDG_CONFIG_HOME", Path.home() / ".config")) / "rubbersoul"
+SKILLS_DIR = files("rubbersoul").joinpath("skills/SKILL.md")
+DEFAULT_DIR = Path(".")
 
 _OLLAMA_HOST: Final[str] = "127.0.0.1"
 _OLLAMA_PORT: Final[int] = 11434

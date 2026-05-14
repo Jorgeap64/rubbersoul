@@ -2,7 +2,8 @@
 name = "rubbersoul"
 version = "0.1.0"
 description = "Rubber Soul - Ollama Automation Commit Message Tool"
-requires-python = "==3.12"
+readme = "README.md"
+requires-python = ">=3.14"
 dependencies = [
     "ollama",
     "pathspec",
@@ -16,16 +17,18 @@ dependencies = [
     "pyrsmi", 
 ]
 
+[dependency-groups]
+dev = [
+    "ruff >= 0.8.1",
+]
+
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools.package-data]
+rubbersoul = ["skills/*.md"]
+
 [project.scripts]
 rubbersoul = "rubbersoul.__main__:main"
 
-[tool.black]
-line-length = 88
-target-version = ['py39']
-
-[tool.ruff.lint]
-select = ["E", "F", "W", "B", "I"]  # common error/warning codes

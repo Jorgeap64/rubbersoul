@@ -1,9 +1,9 @@
 #!/bin/bash
 
 echo "Starting Python formatting with Black..."
-black .
+uv run black .
 
 echo "Running Ruff linting and auto-fix..."
-ruff check . --fix 
+uv run ruff check . --fix 
 
 echo "Done! All Python files formatted and linted."
