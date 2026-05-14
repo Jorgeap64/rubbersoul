@@ -9,8 +9,8 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from rubbersoul.core.commit_schema import CommitMessage
 from rubbersoul.core.git_ops import get_git_diff
-from rubbersoul.utils.utils import (
-    SKILLS_DIR,
+from rubbersoul.utils.utils import SKILLS_DIR
+from rubbersoul.config.config import (
     get_available_ram_gb,
     get_available_vram_gb,
 )

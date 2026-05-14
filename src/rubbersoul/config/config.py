@@ -1,5 +1,8 @@
 import json
+import logging
 import os
+import psutil
+
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -16,6 +19,7 @@ from rubbersoul.utils.utils import APP_DIR
 DEFAULT_DIR: Path = Path(".")
 _ENV_JSON: Path = APP_DIR / "env.json"
 
+log = logging.getLogger(__name__)
 
 @dataclass(slots=True)
 class Config:
@@ -49,3 +53,38 @@ class Config:
 
     def is_model_empty(self) -> bool:
         return self.model.strip() == ""
+
+def get_available_ram_gb() -> float:
+    try:
+        return psutil.virtual_memory().available / (1024**3)
+    except ImportError:
+        log.warning("psutil not installed — assuming 8 GB RAM")
+        return 8.0
+
+
+def get_available_vram_gb() -> float:
+    # NVIDIA
+    try:
+        import pynvml
+
+        pynvml.nvmlInit()
+        handle = pynvml.nvmlDeviceGetHandleByIndex(0)
+        info = pynvml.nvmlDeviceGetMemoryInfo(handle)
+        return info.free / (1024**3)
+    except Exception:
+        pass
+
+    # AMD
+    try:
+        import rsmi
+
+        r = rsmi.rsmi_wrapper()
+        r.rsmi_init(0)
+        _, used = r.rsmi_dev_memory_usage_get(0, rsmi.RSMI_MEM_TYPE_VRAM)
+        _, total = r.rsmi_dev_memory_total_get(0, rsmi.RSMI_MEM_TYPE_VRAM)
+        return (total - used) / (1024**3)
+    except Exception:
+        pass
+
+    log.warning("Could not detect VRAM — assuming CPU-only (0 GB VRAM)")
+    return 0.0

@@ -15,6 +15,7 @@ dependencies = [
     "psutil",
     "nvidia-ml-py",
     "pyrsmi", 
+	"python-dotenv",
 ]
 
 [dependency-groups]

@@ -1,7 +1,10 @@
 import logging
 import os
+
 from logging import Logger
 from pathlib import Path
+
+from rubbersoul.utils.utils import DEV_MODE
 
 """
 ===============================================================================
@@ -11,12 +14,12 @@ from pathlib import Path
 ===============================================================================
 """
 
-
-BASE_STATE_DIR = Path(
-    os.getenv("XDG_STATE_HOME", Path.home() / ".local" / "state")
-)
-_LOG_DIR = BASE_STATE_DIR / "rubbersoul" / "logs"
-
+if DEV_MODE:
+    _LOG_DIR = Path(__file__).resolve().parents[3] / "logs"
+else:
+    _LOG_DIR = Path(
+        os.getenv("XDG_STATE_HOME", Path.home() / ".local" / "state" / "rubbersoul" / "logs" )
+    )
 
 def get_logger(name: str, *, log_dir: Path = _LOG_DIR, console: bool = False) -> Logger:
     os.makedirs(log_dir, exist_ok=True)
@@ -47,5 +50,8 @@ def get_logger(name: str, *, log_dir: Path = _LOG_DIR, console: bool = False) ->
     logging.getLogger("httpx").setLevel(logging.WARNING)
     logging.getLogger("markdown_it").setLevel(logging.WARNING)
     logging.getLogger("asyncio").setLevel(logging.WARNING)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+    
+    logger.warning(f"Log path: {_LOG_DIR}...")
 
     return logger

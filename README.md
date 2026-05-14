@@ -30,12 +30,10 @@ uv tool install . --uninstall
 
 This installs the package in an isolated environment and makes the CLI (if any) available globally.
 
-### Development Installation
-
-Use this if you plan to work on the codebase:
-
+### Dev Mode
+Set up `.env` (see `.env.example`), then run:
 ```bash
-pipx install --editable .
+uv run rubbersoul
 ```
 
 This installs the project in editable mode so changes to the source code take effect immediately.

@@ -2,9 +2,8 @@ from argparse import ArgumentParser, Namespace
 from typing import Final
 
 from rubbersoul.cli.cli import CLI
-from rubbersoul.config.config import Config
+from rubbersoul.config.config import Config, DEFAULT_DIR
 from rubbersoul.utils.logger import get_logger
-from rubbersoul.utils.utils import DEFAULT_DIR
 
 """
 ===============================================================================
