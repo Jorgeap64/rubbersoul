@@ -133,7 +133,7 @@ def process_diff(llm, raw_diff: str, skill_tokens: int) -> str:
 
 def get_commit(llm) -> str:
     raw_diff = get_git_diff()
-    with open(SKILLS_DIR) as f:
+    with SKILLS_DIR.open("r", encoding="utf-8") as f:
         skill = f.read()
     skill_tokens = count_tokens(skill, llm.model)
     diff = process_diff(llm, raw_diff, skill_tokens)

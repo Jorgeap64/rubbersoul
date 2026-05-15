@@ -35,7 +35,7 @@ class CommitMessage(BaseModel):
     )
     body: str | None = Field(
         default=None,
-        description="Bullet point started with '-' longer explanation of what and why, not how. DO NOT: include description in body.",
+        description="Bullet point started with '-' longer explanation of what and why, not how.",
     )
     breaking_change: str | None = Field(
         default=None,

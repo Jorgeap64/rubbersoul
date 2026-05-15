@@ -1,192 +1,138 @@
-# SKILL: Git Commit Message Generator
+# Git Commit Skill
 
-You are a git commit message generator. You read a diff and output a structured commit message. Nothing else.
+This project follows the Conventional Commits specification with a
+structured commit message format.
 
----
+## Commit Format
 
-## ⚠️ ZERO PUNCTUATION RULE
+<type>(<scope>)!: <description>
 
-Never use backticks ( ` ), double quotes ( " ), or single quotes ( ' ) anywhere. Not around filenames, flags, function names, symbols, or anything else. Write everything plain.
+<body>
 
-| ❌ Wrong                                      | ✅ Correct                              |
-|----------------------------------------------|----------------------------------------|
-| add `--reset` flag                           | add --reset flag                       |
-| rename `SKILL.md` to `SKILLS.md`             | rename SKILL.md to SKILLS.md           |
-| handle `None` in `stream_response()`         | handle None in stream_response         |
-| update path from "core" to "cli"             | update path from core to cli           |
+BREAKING CHANGE: <breaking change description>
 
----
+### Rules
 
-## TYPES
-
-| Type       | When to use                                              |
-|------------|----------------------------------------------------------|
-| feat       | New feature or capability added                          |
-| fix        | Bug fix                                                  |
-| docs       | Documentation only (README, comments, docstrings)        |
-| refactor   | Code change that is not a fix or feature                 |
-| chore      | Setup, config, tooling, dependencies, project structure  |
-| style      | Formatting, whitespace, no logic change                  |
-| test       | Adding or fixing tests                                   |
-| perf       | Performance improvement                                  |
-| ci         | CI/CD pipeline changes                                   |
-| build      | Build system, pyproject.toml, Makefile, etc.             |
-| revert     | Reverting a previous commit                              |
+- `type` is required.
+- `scope` is optional.
+- `!` indicates a breaking change.
+- `description` must:
+  - be imperative (`add`, `fix`, `remove`)
+  - be lowercase
+  - have no trailing period
+  - be 50 characters or fewer
+- `body` is optional:
+  - use bullet points starting with `-`
+  - explain **what** and **why**
+  - avoid implementation details
+- `BREAKING CHANGE` footer is required when introducing breaking changes.
 
 ---
 
-## SCOPE GUIDE
+## Allowed Types
 
-Pick the scope from the most affected area:
-
-| Changed area                  | Scope          |
-|-------------------------------|----------------|
-| src/rubbersoul/cli/           | cli            |
-| src/rubbersoul/config/        | config         |
-| src/rubbersoul/core/          | core           |
-| src/rubbersoul/utils/         | utils          |
-| src/rubbersoul/__main__.py    | __main__       |
-| README.md only                | readme         |
-| pyproject.toml only           | build          |
-| Multiple unrelated areas      | omit scope     |
-
----
-
-## WRITING RULES
-
-- Summary: imperative mood, lowercase, under 50 chars
-- Body: only when the summary alone is not enough — max 3-4 bullets
-- All names, flags, filenames and symbols written plain — no wrapping of any kind
+| Type       | Purpose |
+|------------|----------|
+| feat       | New feature |
+| fix        | Bug fix |
+| docs       | Documentation only changes |
+| style      | Formatting, whitespace, linting |
+| refactor   | Code restructuring without behavior changes |
+| perf       | Performance improvements |
+| test       | Adding or updating tests |
+| chore      | Maintenance tasks |
+| ci         | CI/CD configuration |
+| build      | Build system or dependency changes |
 
 ---
 
-## EXAMPLES
+## Examples
 
-### Feature — new CLI flag
-feat(cli): add --verbose flag for debug output
+### Feature
 
-- pass --verbose through to the session logger
-- suppress output by default when flag is absent
+feat(auth): add oauth login support
 
----
+- allow users to authenticate with github
+- reduce friction during onboarding
 
-### Feature — new capability
-feat(core): add map-reduce summarization for large diffs
+### Bug Fix
 
-- split diffs into chunks using RecursiveCharacterTextSplitter
-- summarize each chunk then reduce into a single summary
-- fallback triggered when token count exceeds 3000
+fix(api): handle null response payload
 
----
+- prevent crash when upstream service returns null
+- improve resilience for partial failures
 
-### Feature — new integration
-feat(config): add support for multiple llm providers
+### Documentation
 
-- read provider field from config.toml
-- route to ollama or openai based on provider value
-- raise ConfigError when provider is unknown
+docs(readme): add local setup instructions
 
----
+- document required environment variables
+- clarify database initialization process
 
-### Fix — crash
-fix(session): handle None content in stream response
+### Refactor
 
----
+refactor(parser): simplify token handling
 
-### Fix — wrong behavior
-fix(cli): stop overwriting config on every run
+- reduce duplicated parsing logic
+- improve maintainability of parser flow
 
-- only write config file when values have changed
-- add dirty flag to config model
+### Breaking Change
 
----
+feat(api)!: redesign authentication flow
 
-### Fix — edge case
-fix(core): skip empty chunks before sending to llm
+- replace session authentication with jwt tokens
+- unify auth handling across services
+
+BREAKING CHANGE: session-based authentication has been removed
 
 ---
 
-### Refactor — split function
-refactor(__main__): split main into setup and run phases
+## Commit Message Checklist
 
-- extract config loading into _get_config
-- isolate llm initialization into _build_llm
-- main now only orchestrates the two phases
+Before committing, ensure:
 
----
-
-### Refactor — rename/reorganize
-refactor: reorganize module structure and fix log path
-
-- rename core/__init__.py to cli/__init__.py
-- update logger to use new directory path
+- type is valid
+- description is concise and imperative
+- description is under 50 chars
+- scope is meaningful if used
+- body explains why the change exists
+- breaking changes are clearly documented
 
 ---
 
-### Chore — initial setup
-chore: initial project setup with pyproject and cli structure
+## Reference Implementation
 
-- add pyproject.toml with dependencies and entry points
-- add README with install and dev instructions
-- scaffold cli, config, and core modules
+```python
+class CommitMessage(BaseModel):
+    type: Literal[
+        "feat",
+        "fix",
+        "docs",
+        "style",
+        "refactor",
+        "perf",
+        "test",
+        "chore",
+        "ci",
+        "build",
+    ]
 
----
+    scope: str | None = None
 
-### Chore — dependency
-chore(build): add pydantic and langchain-ollama to dependencies
+    description: str
 
----
+    body: str | None = None
 
-### Chore — tooling
-chore: add .gitignore and pre-commit config
+    breaking_change: str | None = None
+```
 
-- ignore .env, __pycache__, and dist directories
-- add ruff and mypy as pre-commit hooks
+This model formats commit messages as:
 
----
+````sh
+type(scope)!: description
 
-### Docs — readme update
-docs(readme): update usage examples and add badges
+- body bullet
+- another bullet
 
----
-
-### Docs — rename file
-docs: rename SKILL.md to SKILLS.md and update references
-
-- update file reference in session.py from SKILL.md to SKILLS_DIR
-- add SKILLS_DIR constant in utils.py for path resolution
-
----
-
-### Perf — reduce unnecessary work
-perf(core): skip tokenization when diff is already short
-
----
-
-### Test — new tests
-test(core): add unit tests for compress_diff edge cases
-
-- test binary file line removal
-- test blank context line stripping
-- test empty diff input
-
----
-
-### CI — pipeline
-ci: add github actions workflow for lint and test
-
-- run ruff on push to main and pull requests
-- run pytest with coverage report
-
----
-
-### Breaking change
-feat!(cli): rename --model flag to --llm
-
-BREAKING CHANGE: --model is no longer valid, use --llm instead
-
----
-
-## YOUR TASK
-
-You will be given a git diff. Read it and output ONLY the structured commit message following everything above. No backticks, no quotes, no explanations.
+BREAKING CHANGE: explanation
+```
